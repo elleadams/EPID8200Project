@@ -1,0 +1,51 @@
+
+```{r}
+##Load Necessary Packages
+library(dplyr)
+library(Biostrings)
+library(knitr)
+library(tidyverse)
+library(flextable)
+library(ggplot2)
+library(seqinr)
+```
+
+
+```{r}
+##Read in fasta fil made with Excel and BBEdit
+fasta <- read.fasta(file = "rvfvsubset.fasta", seqtype = "DNA", as.string = FALSE)
+
+##Standarize the dates
+new_names <- sapply(names(fasta), function(header) {
+  
+  parts <- strsplit(header, "\\|")[[1]]
+  
+  raw_date <- parts[2]
+  
+  #Try multiple possible formats
+  parsed_date <- suppressWarnings(parse_date_time(
+    raw_date,
+    orders = c("ymd", "mdy", "dmy", "Y", "Ymd")
+  ))
+  
+  #If only year provided, keep as YYYY
+  if (!is.na(parsed_date)) {
+    standardized_date <- format(parsed_date, "%Y-%m-%d")
+  } else {
+    standardized_date <- raw_date  #keep original if parsing fails
+  }
+  
+  parts[2] <- standardized_date
+  paste(parts, collapse="|")
+})
+
+##Assign updated headers
+names(fasta) <- new_names
+
+##Rewrite the fasta file
+write.fasta(
+  sequences = fasta,
+  names = names(fasta),
+  file.out = "rvfvsubset_standardized.fasta"
+)
+```

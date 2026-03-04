@@ -65,15 +65,80 @@ fasta_df <- data.frame(id = names(sequences), sequence = as.character(sequences)
 ##Actually it'll probably be easier to work with the excel file 
 excel <- read_excel("rvfvmetadataandsequences.xlsx")
 
-excel$Collection_Date <- as.Date(excel$Collection_Date, format = "%m%d%Y")
-
-
-
-
+#Make sure I'm just looking at country information
+excel <- excel %>%
+  mutate(Geo_Location = recode(Geo_Location,
+      "Central African Republic: Loko" = "Central African Republic",
+      "Egypt: Asyut" = "Egypt",
+      "Egypt: Gharbiya" = "Egypt",
+      "Egypt: Sharqiya" = "Eqypt",
+      "Kenya: Baringo" = "Kenya", 
+      "Kenya: Baringo district" = "Kenya", 
+      "Kenya: Baringo, Marigat, Sintaan" = "Kenya", 
+      "Kenya: Bura" = "Kenya", 
+      "Kenya: Garissa disrict" = "Kenya",
+      "Kenya: Garissa district" = "Kenya", 
+      "Kenya: Isiolo" = "Kenya", 
+      "Kenya: Kajaido district" = "Kenya", 
+      "Kenya: Kiambu" = "Kenya",
+      "Kenya: Kiambu district" = "Kenya",
+      "Kenya: Kilifi" = "Kenya",
+      "Kenya: Magadi" = "Kenya",
+      "Kenya: Maragua district" = "Kenya",
+      "Kenya: Marsabit" = "Kenya",
+      "Kenya: Mbeere district" = "Kenya",
+      "Kenya: Meru Central district" = "Kenya",
+      "Kenya: Meru South district" = "Kenya",
+      "Kenya: Mombassa district" = "Kenya",
+      "Kenya: Muranga district" = "Kenya",
+      "Kenya: Nairobi" = "Kenya",
+      "Kenya: Nairobi district" = "Kenya",
+      "Kenya: Nakuru district" = "Kenya",
+      "Kenya: Nyandarua" = "Kenya",
+      "Kenya: Nyeri district" = "Kenya",
+      "Kenya: Thika district" = "Kenya",
+      "Kenya: Wajir" = "Kenya",
+      "Madagascar: Ampandrambato, Sahambavy, Fianarantsoa II" = "Madagascar",
+      "Madagascar: Andohasahalava, Fkt Arana II, Vohitsaoka, Ambalavao" = "Madagascar",
+      "Madagascar: Anjozorobe" = "Madagascar",
+      "Madagascar: Ankazobe" = "Madagascar",
+      "Madagascar: Antananarivo" = "Madagascar",
+      "Madagascar: Antanifotsy, Fianarantsoa I" = "Madagascar",
+      "Madagascar: Antsirabe" = "Madagascar",
+      "Madagascar: Manjakandriana" = "Madagascar",
+      "Madagascar: Miarinarivo" = "Madagascar",
+      "Madagascar: Taolagnaro" = "Madagascar",
+      "Mauritania: Aoujeft, Lemsayddi" = "Mauritania",
+      "South Africa: Bela Bela" = "South Africa", 
+      "South Africa: Boshof" = "South Africa",
+      "South Africa: Phalaborwa" = "South Africa",
+      "South Africa: Randfontein" = "South Africa",
+      "Sudan: Gezira State" = "Sudan", 
+      "Sudan: Khartoum State" = "Sudan",
+      "Sudan: White Nile State" = "Sudan",
+      "Uganda: Isingiro" = "Uganda", 
+      "Uganda: Kabale" = "Uganda",
+      "Uganda: Kiruhura" = "Uganda",
+      "Uganda: Nakasongola" = "Uganda",
+      "Uganda: Rubanda" = "Uganda",
+      "Zimbabwe: Beatrice" = "Zimbabwe", 
+      "Zimbabwe: Salisbury" = "Zimbabwe",
+      "Zimbabwe: Sinoia" = "Zimbabwe"))
 
 ##Count number of sequences per country per year 
 excel_summary <- excel %>%
   mutate(Year = year(Collection_Date)) %>%
   group_by(Geo_Location, Year) %>%
   summarise(n_samples = n(), .groups = "drop")
+
+ggplot(excel_summary, aes(x = Year, y = n_samples)) +
+  geom_col() +
+  facet_wrap(~ Geo_Location, scales = "free_y") +
+  labs(
+    x = "Year",
+    y = "Number of samples",
+    title = "Samples collected per year by country"
+  ) +
+  theme_bw()
+
 ```

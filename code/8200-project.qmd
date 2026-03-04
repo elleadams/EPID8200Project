@@ -148,6 +148,9 @@ ggsave("rvf_barplot.png", plot = plot, width = 8, height = 6)
 ##Pivot wider
 excel_summary2 <- excel_summary %>% arrange(Year) %>% pivot_wider(names_from = Year, values_from = n_samples)
 
+excel_summary2 <- excel_summary2 %>%
+  mutate(Total = rowSums(across(where(is.numeric)), na.rm = TRUE))
+
 ##Make a table
 table <- flextable(excel_summary2) |>
   autofit() |>

@@ -9,6 +9,7 @@ library(flextable)
 library(ggplot2)
 library(seqinr)
 library(readxl)
+library(flextable)
 ```
 
 
@@ -71,7 +72,7 @@ excel <- excel %>%
       "Central African Republic: Loko" = "Central African Republic",
       "Egypt: Asyut" = "Egypt",
       "Egypt: Gharbiya" = "Egypt",
-      "Egypt: Sharqiya" = "Eqypt",
+      "Egypt: Sharqiya" = "Egypt",
       "Kenya: Baringo" = "Kenya", 
       "Kenya: Baringo district" = "Kenya", 
       "Kenya: Baringo, Marigat, Sintaan" = "Kenya", 
@@ -131,6 +132,7 @@ excel_summary <- excel %>%
   group_by(Geo_Location, Year) %>%
   summarise(n_samples = n(), .groups = "drop")
 
+##Make a graph
 ggplot(excel_summary, aes(x = Year, y = n_samples)) +
   geom_col() +
   facet_wrap(~ Geo_Location, scales = "free_y") +
@@ -141,4 +143,21 @@ ggplot(excel_summary, aes(x = Year, y = n_samples)) +
   ) +
   theme_bw()
 
+##Pivot wider
+excel_summary2 <- excel_summary %>% arrange(Year) %>% pivot_wider(names_from = Year, values_from = n_samples)
+
+##Make a table
+table <- flextable(excel_summary2) |>
+  autofit() |>
+  bold(part = "header") |>
+  align(align = "center", part = "all") |>
+  set_caption("RVFV Samples by Country and Year")
+
+table <- border_outer(table)
+
+table <- border_inner(table)
+
+table
+
+save_as_image(table, path = "rvfv_table.png")
 ```

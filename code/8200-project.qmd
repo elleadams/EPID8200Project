@@ -133,7 +133,7 @@ excel_summary <- excel %>%
   summarise(n_samples = n(), .groups = "drop")
 
 ##Make a graph
-ggplot(excel_summary, aes(x = Year, y = n_samples)) +
+plot <- ggplot(excel_summary, aes(x = Year, y = n_samples)) +
   geom_col() +
   facet_wrap(~ Geo_Location, scales = "free_y") +
   labs(
@@ -141,7 +141,9 @@ ggplot(excel_summary, aes(x = Year, y = n_samples)) +
     y = "Number of samples",
     title = "Samples collected per year by country"
   ) +
-  theme_bw()
+  theme(axis.text.x = element_text(angle = 90))
+
+ggsave("rvf_barplot.png", plot = plot, width = 8, height = 6)
 
 ##Pivot wider
 excel_summary2 <- excel_summary %>% arrange(Year) %>% pivot_wider(names_from = Year, values_from = n_samples)

@@ -8,6 +8,7 @@ library(tidyverse)
 library(flextable)
 library(ggplot2)
 library(seqinr)
+library(readxl)
 ```
 
 
@@ -48,4 +49,31 @@ write.fasta(
   names = names(fasta),
   file.out = "rvfvsubset_standardized.fasta"
 )
+```
+
+
+```{r}
+##Turning the fasta into a df to do some exploring
+sequences <- readAAStringSet("rvfvsubset.fasta")
+
+fasta_df <- data.frame(id = names(sequences), sequence = as.character(sequences), stringsAsFactors = FALSE) 
+
+```
+
+
+```{r}
+##Actually it'll probably be easier to work with the excel file 
+excel <- read_excel("rvfvmetadataandsequences.xlsx")
+
+excel$Collection_Date <- as.Date(excel$Collection_Date, format = "%m%d%Y")
+
+
+
+
+
+##Count number of sequences per country per year 
+excel_summary <- excel %>%
+  mutate(Year = year(Collection_Date)) %>%
+  group_by(Geo_Location, Year) %>%
+  summarise(n_samples = n(), .groups = "drop")
 ```
